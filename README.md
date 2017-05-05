@@ -22,10 +22,11 @@ the production environment, while keeping your time/coding footprints small.
 
 ## How
 
- 1. Name your env vars to match your config type's field names. You can of
- course use a common prefix to set them apart from "regular" env vars and
- thous even have different configuration sets loaded at the same time,
- designating each set by a different prefix.
+1. Name your env vars to match your config type's field names,
+case conversion to match all lower or all upper case is supported.
+You can of course use a common prefix to set them apart from
+"regular" env vars and thous even have different configuration sets loaded at
+the same time, designating each set by a different prefix.
 
  2. Use [direnv](https:github.com/direnv/direnv) to maintain and organise
  your configuration in shell script like files or just source them by hand.
@@ -94,9 +95,9 @@ import (
 )
 
 func main(){
-  
+
   var cnf config.MyCnf
-  if err := envcnf.Parse(&cnf, "ACME-CORP", "_"); err != nil {
+  if err := envcnf.Parse(&cnf, "ACME-CORP", "_", envcnf.NoConv); err != nil {
     fmt.Println("parsing config:", err)
     return
   }

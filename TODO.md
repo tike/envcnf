@@ -2,8 +2,8 @@
 - [x] Expand env vars in string types
 - [x] allocate/make nil maps and slices
 - [x] pointer handling
-- [ ] Add functionality to map env var casing (lower/upper/title/func)
-- [ ] struct tags for aliasing, omitempty et all
+- [x] Add functionality to map env var casing (lower/upper/title/func)
+- [ ] struct tags for aliasing, omit via "-" etc
 - [ ] interace for custom types
 - [ ] parsing complex numbers
 - [ ] make sepchar a package var?

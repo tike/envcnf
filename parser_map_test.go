@@ -42,7 +42,7 @@ func Test_Parser_parseMap_Valid_WithPrefix(t *testing.T) {
 	defer tm.teardownEnv(t, "ACME", "_", "MAP")
 
 	v := make(TestMap)
-	p, err := NewParserWithName(&v, "ACME", "_", "MAP")
+	p, err := NewParserWithName(&v, "ACME", "_", "MAP", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -63,7 +63,7 @@ func Test_Parser_parseMap_Valid_WithoutPrefix(t *testing.T) {
 	defer tm.teardownEnv(t, "", "_", "MAP")
 
 	v := make(TestMap)
-	p, err := NewParserWithName(&v, "", "_", "MAP")
+	p, err := NewParserWithName(&v, "", "_", "MAP", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -77,7 +77,7 @@ func Test_Parser_parseMap_Valid_WithoutPrefix(t *testing.T) {
 
 func Test_Parser_parseMap_InValid(t *testing.T) {
 	var v TestMap
-	p, err := NewParserWithName(&v, "", "_", "ACME_FOO_THIS_VAR_SHOULD_NOT_EXIST")
+	p, err := NewParserWithName(&v, "", "_", "ACME_FOO_THIS_VAR_SHOULD_NOT_EXIST", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}

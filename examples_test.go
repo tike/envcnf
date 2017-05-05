@@ -44,7 +44,7 @@ func ExampleParse() {
 
 	// and this is how you'd parse this
 	var config MyCnf
-	if err := Parse(&config, "ACME-CORP", "_"); err != nil {
+	if err := Parse(&config, "ACME-CORP", "_", NoConv); err != nil {
 		fmt.Println("Parse:", err)
 		return
 	}
@@ -67,7 +67,7 @@ func ExampleNewParser() {
 	}
 
 	var cnf Addr
-	p, err := NewParser(&cnf, "ACME-CORP", "_")
+	p, err := NewParser(&cnf, "ACME-CORP", "_", NoConv)
 	if err != nil {
 		fmt.Println("NewParser:", err)
 		return
@@ -88,7 +88,7 @@ func ExampleNewParserWithName() {
 	os.Setenv("ACME-CORP_environment", "production")
 
 	var env string
-	p, err := NewParserWithName(&env, "ACME-CORP", "_", "environment")
+	p, err := NewParserWithName(&env, "ACME-CORP", "_", "environment", NoConv)
 	if err != nil {
 		fmt.Println("NewParserWithName:", err)
 		return
@@ -173,7 +173,7 @@ func TestFooBar(t *testing.T) {
 	}
 
 	var config MyCnf
-	if err := Parse(&config, "ACME-CORP", "_"); err != nil {
+	if err := Parse(&config, "ACME-CORP", "_", NoConv); err != nil {
 		t.Fatalf("Parse error: %v\n%#v\n", err, config)
 	}
 

@@ -68,7 +68,7 @@ func Test_Parser_parseStruct_Valid_WithPrefix(t *testing.T) {
 	defer tc.teardownEnv(t, "ACME", "_")
 
 	var v TestStruct
-	p, err := NewParser(&v, "ACME", "_")
+	p, err := NewParser(&v, "ACME", "_", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -86,7 +86,7 @@ func Test_Parser_parseStruct_Valid_WithoutPrefix(t *testing.T) {
 	defer tc.teardownEnv(t, "", "_")
 
 	var v TestStruct
-	p, err := NewParserWithName(&v, "", "_", "STRUCT")
+	p, err := NewParserWithName(&v, "", "_", "STRUCT", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -100,7 +100,7 @@ func Test_Parser_parseStruct_Valid_WithoutPrefix(t *testing.T) {
 
 func Test_Parser_parseStruct_InValid(t *testing.T) {
 	var v TestStruct
-	p, err := NewParserWithName(&v, "", "_", "ACME_FOO_THIS_VAR_SHOULD_NOT_EXIST")
+	p, err := NewParserWithName(&v, "", "_", "ACME_FOO_THIS_VAR_SHOULD_NOT_EXIST", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}

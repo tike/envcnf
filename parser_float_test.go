@@ -10,7 +10,7 @@ func Test_Parser_parseFloat_Valid_WithPrefix(t *testing.T) {
 	defer os.Unsetenv("ACME_FLOAT")
 
 	var v float64
-	p, err := NewParserWithName(&v, "ACME", "_", "FLOAT")
+	p, err := NewParserWithName(&v, "ACME", "_", "FLOAT", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -27,7 +27,7 @@ func Test_Parser_parseFloat_Valid_WithoutPrefix(t *testing.T) {
 	defer os.Unsetenv("FLOAT")
 
 	var v float64
-	p, err := NewParserWithName(&v, "", "_", "FLOAT")
+	p, err := NewParserWithName(&v, "", "_", "FLOAT", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -41,7 +41,7 @@ func Test_Parser_parseFloat_Valid_WithoutPrefix(t *testing.T) {
 
 func Test_Parser_parseFloat_InValid(t *testing.T) {
 	var v float64
-	p, err := NewParserWithName(&v, "", "_", "ACME_FOO_THIS_VAR_SHOULD_NOT_EXIST")
+	p, err := NewParserWithName(&v, "", "_", "ACME_FOO_THIS_VAR_SHOULD_NOT_EXIST", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}

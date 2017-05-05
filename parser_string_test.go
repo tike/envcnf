@@ -10,7 +10,7 @@ func Test_Parser_parseString_Valid_WithPrefix(t *testing.T) {
 	defer os.Unsetenv("ACME_STRING")
 
 	var v string
-	p, err := NewParser(&v, "ACME", "_")
+	p, err := NewParser(&v, "ACME", "_", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -28,7 +28,7 @@ func Test_Parser_parseString_Valid_WithoutPrefix(t *testing.T) {
 	defer os.Unsetenv("STRING")
 
 	var v string
-	p, err := NewParserWithName(&v, "", "_", "STRING")
+	p, err := NewParserWithName(&v, "", "_", "STRING", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -42,7 +42,7 @@ func Test_Parser_parseString_Valid_WithoutPrefix(t *testing.T) {
 
 func Test_Parser_parseString_InValid(t *testing.T) {
 	var v string
-	p, err := NewParserWithName(&v, "", "_", "ACME_FOO_THIS_VAR_SHOULD_NOT_EXIST")
+	p, err := NewParserWithName(&v, "", "_", "ACME_FOO_THIS_VAR_SHOULD_NOT_EXIST", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}

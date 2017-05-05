@@ -10,7 +10,7 @@ func Test_Parser_parseUint_Valid_WithPrefix(t *testing.T) {
 	defer os.Unsetenv("ACME_UINT")
 
 	var v uint
-	p, err := NewParserWithName(&v, "ACME", "_", "UINT")
+	p, err := NewParserWithName(&v, "ACME", "_", "UINT", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -27,7 +27,7 @@ func Test_Parser_parseUint_Valid_WithoutPrefix(t *testing.T) {
 	defer os.Unsetenv("UINT")
 
 	var v uint
-	p, err := NewParserWithName(&v, "", "_", "UINT")
+	p, err := NewParserWithName(&v, "", "_", "UINT", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -41,7 +41,7 @@ func Test_Parser_parseUint_Valid_WithoutPrefix(t *testing.T) {
 
 func Test_Parser_parseUint_InValid(t *testing.T) {
 	var v uint
-	p, err := NewParserWithName(&v, "", "_", "ACME_FOO_THIS_VAR_SHOULD_NOT_EXIST")
+	p, err := NewParserWithName(&v, "", "_", "ACME_FOO_THIS_VAR_SHOULD_NOT_EXIST", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}

@@ -37,7 +37,7 @@ func Test_Parser_parseSlice_Int_Valid_WithPrefix(t *testing.T) {
 	defer ts.teardownEnv(t, "ACME", "_", "SLICE")
 
 	v := make(TestIntSlice, 0)
-	p, err := NewParserWithName(&v, "ACME", "_", "SLICE")
+	p, err := NewParserWithName(&v, "ACME", "_", "SLICE", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -57,7 +57,7 @@ func Test_Parser_parseSlice_Int_Valid_WithoutPrefix(t *testing.T) {
 	defer ts.teardownEnv(t, "", "_", "SLICE")
 
 	v := make(TestIntSlice, 0)
-	p, err := NewParserWithName(&v, "", "_", "SLICE")
+	p, err := NewParserWithName(&v, "", "_", "SLICE", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -73,7 +73,7 @@ func Test_Parser_parseSlice_Int_Valid_WithoutPrefix(t *testing.T) {
 
 func Test_Parser_parseSlice_InValid(t *testing.T) {
 	var v TestIntSlice
-	p, err := NewParserWithName(&v, "", "_", "ACME_FOO_THIS_VAR_SHOULD_NOT_EXIST")
+	p, err := NewParserWithName(&v, "", "_", "ACME_FOO_THIS_VAR_SHOULD_NOT_EXIST", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -113,7 +113,7 @@ func Test_Parser_parseSlice_string_Valid_WithPrefix(t *testing.T) {
 	defer tss.teardownEnv(t, "ACME", "_", "SLICE")
 
 	v := make(TestStringSlice, 0)
-	p, err := NewParserWithName(&v, "ACME", "_", "SLICE")
+	p, err := NewParserWithName(&v, "ACME", "_", "SLICE", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -133,7 +133,7 @@ func Test_Parser_parseSlice_string_Valid_WithoutPrefix(t *testing.T) {
 	defer tss.teardownEnv(t, "", "_", "SLICE")
 
 	v := make(TestStringSlice, 0)
-	p, err := NewParserWithName(&v, "", "_", "SLICE")
+	p, err := NewParserWithName(&v, "", "_", "SLICE", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -190,7 +190,7 @@ func Test_Parser_parseSlice_struct_Valid_WithPrefix(t *testing.T) {
 	defer tsfoo.teardownEnv(t, "ACME", "_", "SLICE")
 
 	v := make(TestStructSlice, 0)
-	p, err := NewParserWithName(&v, "ACME", "_", "SLICE")
+	p, err := NewParserWithName(&v, "ACME", "_", "SLICE", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}
@@ -210,7 +210,7 @@ func Test_Parser_parseSlice_struct_Valid_WithoutPrefix(t *testing.T) {
 	defer tsfoo.teardownEnv(t, "", "_", "SLICE")
 
 	v := make(TestStructSlice, 0)
-	p, err := NewParserWithName(&v, "", "_", "SLICE")
+	p, err := NewParserWithName(&v, "", "_", "SLICE", NoConv)
 	if err != nil {
 		t.Fatalf("newParser: %#v", err)
 	}

@@ -8,10 +8,10 @@ import (
 	"strings"
 )
 
-// These values are used to indicate wether to do case conversion when looking up
-// environment variable names. So if a struct field is named 'Field'
+// These values are used to indicate wether to do case conversion when looking
+// up environment variable names. So if a struct field is named 'Field'
 // and you pass 'ToUpper' the parser will look for an environment variable
-// named 'FIELD'.
+// named 'FIELD' for example.
 const (
 	NoConv int = iota
 	ToLower
@@ -38,10 +38,11 @@ type Parser struct {
 // Parse is the main interface to the package. Just pass a pointer to the variable
 // you'd like to receive your config values in. If you use a common prefix to
 // set your config variable names apart and avoid cluttering, pass it via the
-// prefix parameter. SepChar is used to separate the prefix and the subfields
-// of your env var. See the examples.
-func Parse(val interface{}, prefix, sepchar string) error {
-	p, err := NewParser(val, prefix, sepchar)
+// prefix parameter. sepchar is used to separate the prefix and the subfields
+// of your env var. Conv indicates wether to do case conversion when looking up
+// environment variable names, e.g. envcnf.ToUpper. See the example.
+func Parse(val interface{}, prefix, sepchar string, conv int) error {
+	p, err := NewParser(val, prefix, sepchar, conv)
 	if err != nil {
 		return err
 	}
@@ -53,10 +54,10 @@ func Parse(val interface{}, prefix, sepchar string) error {
 // you'd like to receive your config values in. If you use a common prefix to
 // set your config variable names apart and avoid cluttering, pass it via the
 // prefix parameter. sepchar is used to separate the prefix and the subfields
-// of your env var. See the examples.
-func NewParser(val interface{}, prefix, sepchar string) (*Parser, error) {
-	env := newRawEnvWithPrfxSep(prefix, sepchar)
-	return newParserWithEnv(env, val, prefix, sepchar, "")
+// of your env var. Conv indicates wether to do case conversion when looking up
+// environment variable names, e.g. envcnf.ToUpper. See the example.
+func NewParser(val interface{}, prefix, sepchar string, conv int) (*Parser, error) {
+	return newParserWithEnv(nil, val, prefix, sepchar, "", conv)
 }
 
 // NewParserWithName can be used to parse a single non-composite value from an
@@ -64,14 +65,17 @@ func NewParser(val interface{}, prefix, sepchar string) (*Parser, error) {
 // you'd like to receive your config value in. If you use a common prefix to
 // set your config variable names apart and avoid cluttering, pass it via the
 // prefix parameter. sepchar is used to separate the prefix and the subfields
-// of your env var. See the examples.
-func NewParserWithName(val interface{}, prefix, sepchar, name string) (*Parser, error) {
-	env := newRawEnvWithPrfxSep(prefix, sepchar)
-	return newParserWithEnv(env, val, prefix, sepchar, name)
+// of your env var. Conv indicates wether to do case conversion when looking up
+// environment variable names, e.g. envcnf.ToUpper. See the example.
+func NewParserWithName(val interface{}, prefix, sepchar, name string, conv int) (*Parser, error) {
+	return newParserWithEnv(nil, val, prefix, sepchar, name, conv)
 }
 
 // newParserWithEnv constructs a Parser from the given values
-func newParserWithEnv(env rawEnv, val interface{}, prefix, sepchar, name string) (*Parser, error) {
+func newParserWithEnv(env rawEnv, val interface{}, prefix, sepchar, name string, conv int) (*Parser, error) {
+	if env == nil {
+		env = newRawEnvWithPrfxSep(convertCase(conv, prefix), sepchar)
+	}
 	ref := reflect.ValueOf(val)
 	if ref.Kind() != reflect.Ptr && ref.Kind() != reflect.Interface {
 		return nil, ErrNeedPointerValue
@@ -83,6 +87,7 @@ func newParserWithEnv(env rawEnv, val interface{}, prefix, sepchar, name string)
 		val:  v,
 		valT: v.Type(),
 
+		conv:    conv,
 		prefix:  prefix,
 		sepchar: sepchar,
 		name:    name,
@@ -107,7 +112,11 @@ func (p Parser) getfullname() string {
 }
 
 func (p Parser) convertCase(key string) string {
-	switch p.conv {
+	return convertCase(p.conv, key)
+}
+
+func convertCase(conv int, key string) string {
+	switch conv {
 	case ToUpper:
 		return strings.ToUpper(key)
 	case ToLower:
@@ -238,7 +247,7 @@ func (p *Parser) parsePointer() error {
 	}
 
 	subEnv := p.env.getAllWithPrefix(p.name + p.sepchar)
-	subparser, err := newParserWithEnv(subEnv, p.val.Interface(), p.prefix, p.sepchar, "")
+	subparser, err := newParserWithEnv(subEnv, p.val.Interface(), p.prefix, p.sepchar, "", p.conv)
 	if err != nil {
 		return err
 	}
@@ -307,7 +316,7 @@ func (p *Parser) parseStruct() error {
 			return FieldNotAddressable(fieldName)
 		}
 
-		subparser, err := newParserWithEnv(p.env, field.Addr().Interface(), p.prefix, p.sepchar, fieldName)
+		subparser, err := newParserWithEnv(p.env, field.Addr().Interface(), p.prefix, p.sepchar, fieldName, p.conv)
 		if err != nil {
 			return err
 		}
@@ -368,7 +377,7 @@ func (p *Parser) parseMap() error {
 
 		convertedKey := reflect.New(keyT)
 		if !keyIsString {
-			valParser, err := newParserWithEnv(env, convertedKey.Interface(), "", p.sepchar, "")
+			valParser, err := newParserWithEnv(env, convertedKey.Interface(), "", p.sepchar, "", p.conv)
 			if err != nil {
 				return err
 			}
@@ -387,7 +396,7 @@ func (p *Parser) parseMap() error {
 		if valIsString {
 			convertedVal.Elem().SetString(v)
 		} else if !valIsContainer {
-			valParser, err := newParserWithEnv(env, convertedVal.Interface(), "", p.sepchar, subTypeKey)
+			valParser, err := newParserWithEnv(env, convertedVal.Interface(), "", p.sepchar, subTypeKey, p.conv)
 			if err != nil {
 				return err
 			}
@@ -397,7 +406,7 @@ func (p *Parser) parseMap() error {
 		} else {
 			subEnv := env.getAllWithPrefix(mapKey + p.sepchar)
 			for subK := range subEnv {
-				valParser, err := newParserWithEnv(subEnv, convertedVal.Interface(), "", p.sepchar, subK)
+				valParser, err := newParserWithEnv(subEnv, convertedVal.Interface(), "", p.sepchar, subK, p.conv)
 				if err != nil {
 					return err
 				}
@@ -455,7 +464,7 @@ func (p *Parser) parseSlice() error {
 		if valIsString {
 			convertedVal.Elem().SetString(v)
 		} else if !valIsContainer {
-			valParser, err := newParserWithEnv(env, convertedVal.Interface(), "", "", k)
+			valParser, err := newParserWithEnv(env, convertedVal.Interface(), "", "", k, p.conv)
 			if err != nil {
 				return err
 			}
@@ -468,7 +477,7 @@ func (p *Parser) parseSlice() error {
 			}
 			subEnv := env.getAllWithPrefix(k + p.sepchar)
 			for subK := range subEnv {
-				valParser, err := newParserWithEnv(subEnv, convertedVal.Interface(), "", p.sepchar, subK)
+				valParser, err := newParserWithEnv(subEnv, convertedVal.Interface(), "", p.sepchar, subK, p.conv)
 				if err != nil {
 					return err
 				}
