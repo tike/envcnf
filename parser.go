@@ -205,7 +205,7 @@ func (p *Parser) parseTypes() error {
 	case reflect.Array, reflect.Slice:
 		return UnsupportedType("Array/Slice")
 	case reflect.Map:
-		return UnsupportedType("map")
+		return p.parseMap()
 	case reflect.Struct:
 		return p.parseStruct()
 	default:
@@ -242,6 +242,57 @@ func (p *Parser) parseStruct() error {
 		if err := subparser.parseTypes(); err != nil {
 			return err
 		}
+
+	}
+	return nil
+}
+
+// parseMap obtains all values from the env vars that are prefixed by the fully
+// nested (and possibly prefixed) name of the parser,
+// parses them recursively and assigns
+// the obtained result to the (proper subfield of the) variable you handed to
+// NewParser or NewParserWithName.
+func (p *Parser) parseMap() error {
+	prfx := p.getfullname()
+	env := p.env.getAllWithPrefix(prfx + p.sepchar)
+
+	if len(env) == 0 {
+		return MissingEnvVar(prfx + "_XYZ for map value")
+	}
+
+	keyT := p.valT.Key()
+	needKeyTrans := keyT.Kind() != reflect.String
+
+	valT := p.valT.Elem()
+	needValTrans := valT.Kind() != reflect.String
+
+	for k, v := range env {
+		convertedKey := reflect.New(keyT)
+		if needKeyTrans {
+			valParser, err := newParserWithEnv(env, convertedKey.Interface(), "", "", "")
+			if err != nil {
+				return err
+			}
+			if err := valParser.parseTypes(); err != nil {
+				return err
+			}
+		} else {
+			convertedKey.Elem().SetString(k)
+		}
+
+		convertedVal := reflect.New(valT)
+		if needValTrans {
+			valParser, err := newParserWithEnv(env, convertedVal.Interface(), "", "", k)
+			if err != nil {
+				return err
+			}
+			if err := valParser.parseTypes(); err != nil {
+				return err
+			}
+		} else {
+			convertedVal.Elem().SetString(v)
+		}
+		p.val.SetMapIndex(convertedKey.Elem(), convertedVal.Elem())
 
 	}
 	return nil
