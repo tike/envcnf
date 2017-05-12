@@ -3,6 +3,7 @@ package envcnf
 import (
 	"errors"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -62,4 +63,24 @@ func (p Parser) getfullname() string {
 		key = strings.Join(p.parentNames, p.sepchar) + p.sepchar
 	}
 	return key + p.name
+}
+
+// parseBool obtains the value from the env var that is signified by the fully
+// nested (and possibly prefixed) name of the parser,
+// parses it via strconv.ParseBool and assigns
+// the obtained result to the (proper subfield) of the variable you handed to
+// NewParser et al.
+func (p *Parser) parseBool() error {
+	rawval, ok := p.env[p.getfullname()]
+	if !ok {
+		//TODO: use/obtain/signal default falue
+		return errors.New("couldn't find envvar")
+	}
+	val, err := strconv.ParseBool(rawval)
+	if err != nil {
+		return err
+	}
+	// CanAddr/CanSet/AssignableTo/ConvertibleTo are handled by the upper layers
+	p.val.SetBool(val)
+	return nil
 }
