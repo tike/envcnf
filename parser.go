@@ -65,6 +65,23 @@ func (p Parser) getfullname() string {
 	return key + p.name
 }
 
+// parseString obtains the value from the env var that is signified by the fully
+// nested (and possibly prefixed) name of the parser,
+// parses it via strconv.ParseBool and assigns
+// the obtained result to the (proper subfield) of the variable you handed to
+// NewParser et al.
+func (p *Parser) parseString() error {
+	rawval, ok := p.env[p.getfullname()]
+	if !ok {
+		//TODO: use/obtain/signal default falue
+		return errors.New("couldn't find envvar")
+	}
+
+	// CanAddr/CanSet/AssignableTo/ConvertibleTo are handled by the upper layers
+	p.val.SetString(rawval)
+	return nil
+}
+
 // parseBool obtains the value from the env var that is signified by the fully
 // nested (and possibly prefixed) name of the parser,
 // parses it via strconv.ParseBool and assigns
