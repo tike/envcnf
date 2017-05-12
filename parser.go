@@ -3,6 +3,7 @@ package envcnf
 import (
 	"errors"
 	"reflect"
+	"strings"
 )
 
 // Parser handles a single parsing process for a given (composite) value,
@@ -51,4 +52,14 @@ func newParserWithEnv(env rawEnv, val interface{}, prefix, sepchar, name string)
 		sepchar: sepchar,
 		name:    name,
 	}, nil
+}
+
+// getfullname concatenates the parts of the parsers (parent) name(s) in a
+// sensible way.
+func (p Parser) getfullname() string {
+	var key string
+	if len(p.parentNames) > 0 {
+		key = strings.Join(p.parentNames, p.sepchar) + p.sepchar
+	}
+	return key + p.name
 }
