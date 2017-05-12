@@ -1,8 +1,6 @@
 package envcnf
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -41,7 +39,7 @@ func NewParserWithName(val interface{}, prefix, sepchar, name string) (*Parser, 
 func newParserWithEnv(env rawEnv, val interface{}, prefix, sepchar, name string) (*Parser, error) {
 	ptrRef := reflect.ValueOf(val)
 	if ptrRef.Kind() != reflect.Ptr {
-		return nil, errors.New("val needs to be a pointer")
+		return nil, ErrNeedPointerValue
 	}
 	v := ptrRef.Elem()
 	return &Parser{
@@ -72,10 +70,11 @@ func (p Parser) getfullname() string {
 // the obtained result to the (proper subfield) of the variable you handed to
 // NewParser et al.
 func (p *Parser) parseString() error {
-	rawval, ok := p.env[p.getfullname()]
+	key := p.getfullname()
+	rawval, ok := p.env[key]
 	if !ok {
 		//TODO: use/obtain/signal default falue
-		return errors.New("couldn't find envvar")
+		return MissingEnvVar(key)
 	}
 
 	// CanAddr/CanSet/AssignableTo/ConvertibleTo are handled by the upper layers
@@ -89,10 +88,11 @@ func (p *Parser) parseString() error {
 // the obtained result to the (proper subfield) of the variable you handed to
 // NewParser et al.
 func (p *Parser) parseBool() error {
-	rawval, ok := p.env[p.getfullname()]
+	key := p.getfullname()
+	rawval, ok := p.env[key]
 	if !ok {
 		//TODO: use/obtain/signal default falue
-		return errors.New("couldn't find envvar")
+		return MissingEnvVar(key)
 	}
 	val, err := strconv.ParseBool(rawval)
 	if err != nil {
@@ -109,10 +109,11 @@ func (p *Parser) parseBool() error {
 // the obtained result to the (proper subfield) of the variable you handed to
 // NewParser et al.
 func (p *Parser) parseInt() error {
-	rawval, ok := p.env[p.getfullname()]
+	key := p.getfullname()
+	rawval, ok := p.env[key]
 	if !ok {
 		//TODO: use/obtain/signal default falue
-		return errors.New("couldn't find envvar")
+		return MissingEnvVar(key)
 	}
 
 	val, err := strconv.ParseInt(rawval, 10, p.valT.Bits())
@@ -131,10 +132,11 @@ func (p *Parser) parseInt() error {
 // the obtained result to the (proper subfield) of the variable you handed to
 // NewParser et al.
 func (p *Parser) parseUint() error {
-	rawval, ok := p.env[p.getfullname()]
+	key := p.getfullname()
+	rawval, ok := p.env[key]
 	if !ok {
 		//TODO: use/obtain/signal default falue
-		return errors.New("couldn't find envvar")
+		return MissingEnvVar(key)
 	}
 
 	val, err := strconv.ParseUint(rawval, 10, p.valT.Bits())
@@ -153,10 +155,11 @@ func (p *Parser) parseUint() error {
 // the obtained result to the (proper subfield) of the variable you handed to
 // NewParser et al.
 func (p *Parser) parseFloat() error {
-	rawval, ok := p.env[p.getfullname()]
+	key := p.getfullname()
+	rawval, ok := p.env[key]
 	if !ok {
 		//TODO: use/obtain/signal default falue
-		return errors.New("couldn't find envvar")
+		return MissingEnvVar(key)
 	}
 
 	val, err := strconv.ParseFloat(rawval, p.valT.Bits())
@@ -194,19 +197,19 @@ func (p *Parser) parseTypes() error {
 		reflect.Float64:
 		return p.parseFloat()
 	case reflect.Complex64, reflect.Complex128:
-		return errors.New("complex parsing not yet implemented")
+		return UnsupportedType("Complex64/Complex128")
 	case reflect.String:
 		return p.parseString()
 	case reflect.Ptr:
-		return errors.New("ptr parsing not yet implemented")
+		return UnsupportedType("Ptr")
 	case reflect.Array, reflect.Slice:
-		return errors.New("array/slice parsing not yet implemented")
+		return UnsupportedType("Array/Slice")
 	case reflect.Map:
-		return errors.New("map parsing not yet implemented")
+		return UnsupportedType("map")
 	case reflect.Struct:
 		return p.parseStruct()
 	default:
-		return fmt.Errorf("parsing not yet implemented for value of Type %T (Kind: %s)", p.valT.Name(), p.valT.Kind())
+		return UnsupportedType(p.valT.Name() + " of kind " + p.valT.Kind().String())
 	}
 }
 
@@ -218,11 +221,11 @@ func (p *Parser) parseTypes() error {
 func (p *Parser) parseStruct() error {
 	for i := 0; i < p.val.NumField(); i++ {
 		field := p.val.Field(i)
+		fieldName := p.valT.Field(i).Name
 		if !field.CanAddr() {
-			return errors.New("struct field not addressable") //TODO: use dedicated error type with full info here
+			return FieldNotAddressable(fieldName)
 		}
 
-		fieldName := p.valT.Field(i).Name
 		subparser, err := newParserWithEnv(p.env, field.Addr().Interface(), p.prefix, p.sepchar, fieldName)
 		if err != nil {
 			return err
