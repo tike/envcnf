@@ -68,7 +68,7 @@ func (p Parser) getfullname() string {
 // nested (and possibly prefixed) name of the parser,
 // parses it via strconv.ParseBool and assigns
 // the obtained result to the (proper subfield) of the variable you handed to
-// NewParser et al.
+// NewParser or NewParserWithName.
 func (p *Parser) parseString() error {
 	key := p.getfullname()
 	rawval, ok := p.env[key]
@@ -86,7 +86,7 @@ func (p *Parser) parseString() error {
 // nested (and possibly prefixed) name of the parser,
 // parses it via strconv.ParseBool and assigns
 // the obtained result to the (proper subfield) of the variable you handed to
-// NewParser et al.
+// NewParser or NewParserWithName.
 func (p *Parser) parseBool() error {
 	key := p.getfullname()
 	rawval, ok := p.env[key]
@@ -105,9 +105,9 @@ func (p *Parser) parseBool() error {
 
 // parseInt obtains the value from the env var that is signified by the fully
 // nested (and possibly prefixed) name of the parser,
-// parses it via strconv.ParseBool and assigns
+// parses it via strconv.ParseInt and assigns
 // the obtained result to the (proper subfield) of the variable you handed to
-// NewParser et al.
+// NewParser or NewParserWithName.
 func (p *Parser) parseInt() error {
 	key := p.getfullname()
 	rawval, ok := p.env[key]
@@ -128,9 +128,9 @@ func (p *Parser) parseInt() error {
 
 // parseUint obtains the value from the env var that is signified by the fully
 // nested (and possibly prefixed) name of the parser,
-// parses it via strconv.ParseBool and assigns
+// parses it via strconv.ParseUint and assigns
 // the obtained result to the (proper subfield) of the variable you handed to
-// NewParser et al.
+// NewParser or NewParserWithName.
 func (p *Parser) parseUint() error {
 	key := p.getfullname()
 	rawval, ok := p.env[key]
@@ -151,9 +151,9 @@ func (p *Parser) parseUint() error {
 
 // parseFloat obtains the value from the env var that is signified by the fully
 // nested (and possibly prefixed) name of the parser,
-// parses it via strconv.ParseBool and assigns
+// parses it via strconv.ParseFloat and assigns
 // the obtained result to the (proper subfield) of the variable you handed to
-// NewParser et al.
+// NewParser or NewParserWithName.
 func (p *Parser) parseFloat() error {
 	key := p.getfullname()
 	rawval, ok := p.env[key]
@@ -173,7 +173,7 @@ func (p *Parser) parseFloat() error {
 }
 
 // parseTypes invokes the correct handler method for the reflect.Kind of the
-// value passed to NewParser et al.
+// value passed to NewParser or NewParserWithName.
 func (p *Parser) parseTypes() error {
 	switch p.val.Kind() {
 	case reflect.Bool:
@@ -213,11 +213,11 @@ func (p *Parser) parseTypes() error {
 	}
 }
 
-// parseStruct obtains the value from the env var that is signified by the fully
+// parseStruct obtains the values from the env vars that are signified by the fully
 // nested (and possibly prefixed) name of the parser,
-// parses it via strconv.ParseBool and assigns
-// the obtained result to the (proper subfield) of the variable you handed to
-// NewParser et al.
+// parses them recursively and assigns
+// the obtained result to the (proper subfield of the) variable you handed to
+// NewParser or NewParserWithName.
 func (p *Parser) parseStruct() error {
 	for i := 0; i < p.val.NumField(); i++ {
 		field := p.val.Field(i)

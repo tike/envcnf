@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-// ErrNeedPointerValue is returned by NewParser et al if it is called with a plain
+// ErrNeedPointerValue is returned by NewParser or NewParserWithName if it is called with a plain
 // value instead of a pointer.
 var ErrNeedPointerValue = errors.New("envcnf: val needs to be a pointer")
 
