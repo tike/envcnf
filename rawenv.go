@@ -46,3 +46,15 @@ func newRawEnvWithPrfxSep(prefix, sepchar string) rawEnv {
 	}
 	return env
 }
+
+// getAllWithPrefix returns the subset of values in the map that start with the
+// given prefix, the prefix is stripped from the keys in the returned map.
+func (r rawEnv) getAllWithPrefix(prefix string) rawEnv {
+	sub := make(rawEnv)
+	for k, v := range r {
+		if strings.HasPrefix(k, prefix) {
+			sub[strings.TrimPrefix(k, prefix)] = v
+		}
+	}
+	return sub
+}

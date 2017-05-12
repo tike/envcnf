@@ -41,3 +41,22 @@ func Test_rawEnv_newRawEnvWithPrfxSep(t *testing.T) {
 		t.Error("no environment variables found at all!")
 	}
 }
+
+func Test_rawEnv_getAllWithPrefix(t *testing.T) {
+	env := rawEnv{
+		"aa": "c",
+		"ab": "c",
+		"ac": "c",
+		"b":  "b",
+		"ca": "b",
+	}
+	res := env.getAllWithPrefix("a")
+	if len(res) != 3 {
+		t.Errorf("not all valid values selected: have %d (expected: %d)", len(res), 3)
+	}
+	for k, v := range res {
+		if v != "c" {
+			t.Errorf("wrong key selected: %s", k)
+		}
+	}
+}
