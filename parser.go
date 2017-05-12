@@ -2,6 +2,7 @@ package envcnf
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -165,5 +166,80 @@ func (p *Parser) parseFloat() error {
 
 	// CanAddr/CanSet/AssignableTo/ConvertibleTo are handled by the upper layers
 	p.val.SetFloat(val)
+	return nil
+}
+
+// parseTypes invokes the correct handler method for the reflect.Kind of the
+// value passed to NewParser et al.
+func (p *Parser) parseTypes() error {
+	switch p.val.Kind() {
+	case reflect.Bool:
+		return p.parseBool()
+	case
+		reflect.Int,
+		reflect.Int8,
+		reflect.Int16,
+		reflect.Int32,
+		reflect.Int64:
+		return p.parseInt()
+	case
+		reflect.Uint,
+		reflect.Uint8,
+		reflect.Uint16,
+		reflect.Uint32,
+		reflect.Uint64:
+		return p.parseUint()
+	case
+		reflect.Float32,
+		reflect.Float64:
+		return p.parseFloat()
+	case reflect.Complex64, reflect.Complex128:
+		return errors.New("complex parsing not yet implemented")
+	case reflect.String:
+		return p.parseString()
+	case reflect.Ptr:
+		return errors.New("ptr parsing not yet implemented")
+	case reflect.Array, reflect.Slice:
+		return errors.New("array/slice parsing not yet implemented")
+	case reflect.Map:
+		return errors.New("map parsing not yet implemented")
+	case reflect.Struct:
+		return p.parseStruct()
+	default:
+		return fmt.Errorf("parsing not yet implemented for value of Type %T (Kind: %s)", p.valT.Name(), p.valT.Kind())
+	}
+}
+
+// parseStruct obtains the value from the env var that is signified by the fully
+// nested (and possibly prefixed) name of the parser,
+// parses it via strconv.ParseBool and assigns
+// the obtained result to the (proper subfield) of the variable you handed to
+// NewParser et al.
+func (p *Parser) parseStruct() error {
+	for i := 0; i < p.val.NumField(); i++ {
+		field := p.val.Field(i)
+		if !field.CanAddr() {
+			return errors.New("struct field not addressable") //TODO: use dedicated error type with full info here
+		}
+
+		fieldName := p.valT.Field(i).Name
+		subparser, err := newParserWithEnv(p.env, field.Addr().Interface(), p.prefix, p.sepchar, fieldName)
+		if err != nil {
+			return err
+		}
+
+		if len(p.parentNames) > 0 {
+			subparser.parentNames = append(subparser.parentNames, p.parentNames...)
+		}
+
+		if field.Kind() == reflect.Struct {
+			subparser.parentNames = append(subparser.parentNames, fieldName)
+		}
+
+		if err := subparser.parseTypes(); err != nil {
+			return err
+		}
+
+	}
 	return nil
 }
