@@ -22,6 +22,19 @@ type Parser struct {
 	name        string
 }
 
+// Parse is the main interface to the package. Just pass a pointer to the variable
+// you'd like to receive your config values in. If you use a common prefix to
+// set your config variable names apart and avoid cluttering, pass it via the
+// prefix parameter. SepChar is used to separate the prefix and the subfields
+// of your env var. See the examples.
+func Parse(val interface{}, prefix, sepchar string) error {
+	p, err := NewParser(val, prefix, sepchar)
+	if err != nil {
+		return err
+	}
+	return p.parseTypes()
+}
+
 // NewParser is the default interface to be used for parsing composite types.
 func NewParser(val interface{}, prefix, sepchar string) (*Parser, error) {
 	env := newRawEnvWithPrfxSep(prefix, sepchar)
