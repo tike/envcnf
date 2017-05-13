@@ -297,3 +297,49 @@ func (p *Parser) parseMap() error {
 	}
 	return nil
 }
+
+// parseSlice obtains all values from the env vars that are prefixed by the fully
+// nested (and possibly prefixed) name of the parser,
+// parses them recursively and assigns
+// the obtained result to the (proper subfield of the) variable you handed to
+// NewParser or NewParserWithName.
+func (p *Parser) parseSlice() error {
+	prfx := p.getfullname()
+	env := p.env.getAllWithPrefix(prfx + p.sepchar)
+
+	if len(env) == 0 {
+		return MissingEnvVar(prfx + "_XYZ for slice/array value")
+	}
+
+	valT := p.valT.Elem()
+	needValTrans := valT.Kind() != reflect.String
+
+	convertedVals := make(map[int]reflect.Value)
+	for k, v := range env {
+		idx, err := strconv.ParseInt(k, 10, 64)
+		if err != nil {
+			return err
+		}
+
+		convertedVal := reflect.New(valT)
+		if needValTrans {
+			valParser, err := newParserWithEnv(env, convertedVal.Interface(), "", "", k)
+			if err != nil {
+				return err
+			}
+			if err := valParser.parseTypes(); err != nil {
+				return err
+			}
+		} else {
+			convertedVal.Elem().SetString(v)
+		}
+		// collect unorderd
+		convertedVals[int(idx)] = convertedVal
+	}
+
+	// finally add values to target container in designated order
+	for i := 0; i < len(convertedVals); i++ {
+		reflect.Append(p.val, convertedVals[i].Elem())
+	}
+	return nil
+}
