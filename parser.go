@@ -54,7 +54,7 @@ func newParserWithEnv(env rawEnv, val interface{}, prefix, sepchar, name string)
 	}, nil
 }
 
-// getfullname concatenates the parts of the parsers (parent) name(s) in a
+// getfullname concatenates the parts of the parser's (parent) name(s) in a
 // sensible way.
 func (p Parser) getfullname() string {
 	var key string
@@ -67,7 +67,7 @@ func (p Parser) getfullname() string {
 // parseString obtains the value from the env var that is signified by the fully
 // nested (and possibly prefixed) name of the parser,
 // parses it via strconv.ParseBool and assigns
-// the obtained result to the (proper subfield) of the variable you handed to
+// the obtained result to the (proper subfield of the) variable you handed to
 // NewParser or NewParserWithName.
 func (p *Parser) parseString() error {
 	key := p.getfullname()
@@ -85,7 +85,7 @@ func (p *Parser) parseString() error {
 // parseBool obtains the value from the env var that is signified by the fully
 // nested (and possibly prefixed) name of the parser,
 // parses it via strconv.ParseBool and assigns
-// the obtained result to the (proper subfield) of the variable you handed to
+// the obtained result to the (proper subfield of the) variable you handed to
 // NewParser or NewParserWithName.
 func (p *Parser) parseBool() error {
 	key := p.getfullname()
@@ -106,7 +106,7 @@ func (p *Parser) parseBool() error {
 // parseInt obtains the value from the env var that is signified by the fully
 // nested (and possibly prefixed) name of the parser,
 // parses it via strconv.ParseInt and assigns
-// the obtained result to the (proper subfield) of the variable you handed to
+// the obtained result to the (proper subfield of the) variable you handed to
 // NewParser or NewParserWithName.
 func (p *Parser) parseInt() error {
 	key := p.getfullname()
@@ -129,7 +129,7 @@ func (p *Parser) parseInt() error {
 // parseUint obtains the value from the env var that is signified by the fully
 // nested (and possibly prefixed) name of the parser,
 // parses it via strconv.ParseUint and assigns
-// the obtained result to the (proper subfield) of the variable you handed to
+// the obtained result to the (proper subfield of the) variable you handed to
 // NewParser or NewParserWithName.
 func (p *Parser) parseUint() error {
 	key := p.getfullname()
@@ -152,7 +152,7 @@ func (p *Parser) parseUint() error {
 // parseFloat obtains the value from the env var that is signified by the fully
 // nested (and possibly prefixed) name of the parser,
 // parses it via strconv.ParseFloat and assigns
-// the obtained result to the (proper subfield) of the variable you handed to
+// the obtained result to the (proper subfield of the) variable you handed to
 // NewParser or NewParserWithName.
 func (p *Parser) parseFloat() error {
 	key := p.getfullname()

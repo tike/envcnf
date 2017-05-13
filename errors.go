@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-// ErrNeedPointerValue is returned by NewParser or NewParserWithName if it is called with a plain
-// value instead of a pointer.
+// ErrNeedPointerValue is returned by NewParser or NewParserWithName if it is
+// called with a plain value instead of a pointer.
 var ErrNeedPointerValue = errors.New("envcnf: val needs to be a pointer")
 
 // MissingEnvVar is returned when no env var with a name fitting the scheme
@@ -18,7 +18,7 @@ func (e MissingEnvVar) Error() string {
 }
 
 // FieldNotAddressable is returned when a structfield is not addressable.
-// see the reflect.Addr and reflect.CanAddr if you don't know what this means.
+// See reflect.Addr and reflect.CanAddr if you don't know what this means.
 type FieldNotAddressable string
 
 func (e FieldNotAddressable) Error() string {
