@@ -1,0 +1,10 @@
+- [ ] Export a Parse method on the parser
+- [ ] Expand env vars in string types
+- [ ] allocate/make nil maps and slices
+- [ ] pointer handling
+- [ ] Add functionality to map env var casing (lower/upper/title/func)
+- [ ] struct tags for aliasing, omitempty et all
+- [ ] parsing complex numbers
+- [ ] interace for custom types
+- [ ] make sepchar a package var?
+- [ ] boilerplate example to convert existing configurations
