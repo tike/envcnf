@@ -50,11 +50,11 @@ func NewParserWithName(val interface{}, prefix, sepchar, name string) (*Parser, 
 
 // newParserWithEnv constructs a Parser from the given values
 func newParserWithEnv(env rawEnv, val interface{}, prefix, sepchar, name string) (*Parser, error) {
-	ptrRef := reflect.ValueOf(val)
-	if ptrRef.Kind() != reflect.Ptr {
+	ref := reflect.ValueOf(val)
+	if ref.Kind() != reflect.Ptr && ref.Kind() != reflect.Interface {
 		return nil, ErrNeedPointerValue
 	}
-	v := ptrRef.Elem()
+	v := ref.Elem()
 	return &Parser{
 		env: env,
 
@@ -274,28 +274,42 @@ func (p *Parser) parseMap() error {
 	}
 
 	keyT := p.valT.Key()
-	needKeyTrans := keyT.Kind() != reflect.String
+	keyIsString := keyT.Kind() == reflect.String
 
 	valT := p.valT.Elem()
-	needValTrans := valT.Kind() != reflect.String
+	var valIsString, valIsContainer bool
+	switch valT.Kind() {
+	case reflect.String:
+		valIsString = true
+	case reflect.Struct, reflect.Slice, reflect.Array, reflect.Map:
+		valIsContainer = true
+	}
 
 	for k, v := range env {
+		var mapKey, subTypeKey string
+
 		convertedKey := reflect.New(keyT)
-		if needKeyTrans {
-			valParser, err := newParserWithEnv(env, convertedKey.Interface(), "", "", "")
+		if !keyIsString {
+			valParser, err := newParserWithEnv(env, convertedKey.Interface(), "", p.sepchar, "")
 			if err != nil {
 				return err
 			}
 			if err := valParser.parseTypes(); err != nil {
 				return err
 			}
+		} else if valIsContainer {
+			parts := strings.SplitN(k, p.sepchar, 2)
+			mapKey, subTypeKey = parts[0], parts[1]
 		} else {
-			convertedKey.Elem().SetString(k)
+			mapKey, subTypeKey = k, k
 		}
+		convertedKey.Elem().SetString(mapKey)
 
 		convertedVal := reflect.New(valT)
-		if needValTrans {
-			valParser, err := newParserWithEnv(env, convertedVal.Interface(), "", "", k)
+		if valIsString {
+			convertedVal.Elem().SetString(v)
+		} else if !valIsContainer {
+			valParser, err := newParserWithEnv(env, convertedVal.Interface(), "", p.sepchar, subTypeKey)
 			if err != nil {
 				return err
 			}
@@ -303,10 +317,18 @@ func (p *Parser) parseMap() error {
 				return err
 			}
 		} else {
-			convertedVal.Elem().SetString(v)
+			subEnv := env.getAllWithPrefix(mapKey + p.sepchar)
+			for subK := range subEnv {
+				valParser, err := newParserWithEnv(subEnv, convertedVal.Interface(), "", p.sepchar, subK)
+				if err != nil {
+					return err
+				}
+				if err := valParser.parseTypes(); err != nil {
+					return err
+				}
+			}
 		}
 		p.val.SetMapIndex(convertedKey.Elem(), convertedVal.Elem())
-
 	}
 	return nil
 }
