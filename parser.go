@@ -216,7 +216,7 @@ func (p *Parser) parseTypes() error {
 	case reflect.Ptr:
 		return UnsupportedType("Ptr")
 	case reflect.Array, reflect.Slice:
-		return UnsupportedType("Array/Slice")
+		return p.parseSlice()
 	case reflect.Map:
 		return p.parseMap()
 	case reflect.Struct:
@@ -254,6 +254,12 @@ func (p *Parser) parseStruct() error {
 
 		if err := subparser.parseTypes(); err != nil {
 			return err
+		}
+
+		// TODO: This should not be necessary, so there's something odd here
+		// or right above in the invocation of newParserWithEnv
+		if field.Kind() == reflect.Slice {
+			field.Set(subparser.val)
 		}
 
 	}
@@ -347,17 +353,32 @@ func (p *Parser) parseSlice() error {
 	}
 
 	valT := p.valT.Elem()
-	needValTrans := valT.Kind() != reflect.String
+	var valIsString, valIsContainer bool
+	switch valT.Kind() {
+	case reflect.String:
+		valIsString = true
+	case reflect.Slice, reflect.Array, reflect.Map, reflect.Struct:
+		valIsContainer = true
+	}
 
 	convertedVals := make(map[int]reflect.Value)
 	for k, v := range env {
+		// parse index into int
+		if valIsContainer {
+			parts := strings.SplitN(k, p.sepchar, 2)
+			k = parts[0]
+		}
+
 		idx, err := strconv.ParseInt(k, 10, 64)
 		if err != nil {
 			return err
 		}
 
+		// setup value type pointer
 		convertedVal := reflect.New(valT)
-		if needValTrans {
+		if valIsString {
+			convertedVal.Elem().SetString(v)
+		} else if !valIsContainer {
 			valParser, err := newParserWithEnv(env, convertedVal.Interface(), "", "", k)
 			if err != nil {
 				return err
@@ -366,7 +387,19 @@ func (p *Parser) parseSlice() error {
 				return err
 			}
 		} else {
-			convertedVal.Elem().SetString(v)
+			if _, ok := convertedVals[int(idx)]; ok {
+				continue
+			}
+			subEnv := env.getAllWithPrefix(k + p.sepchar)
+			for subK := range subEnv {
+				valParser, err := newParserWithEnv(subEnv, convertedVal.Interface(), "", p.sepchar, subK)
+				if err != nil {
+					return err
+				}
+				if err := valParser.parseTypes(); err != nil {
+					return err
+				}
+			}
 		}
 		// collect unorderd
 		convertedVals[int(idx)] = convertedVal
@@ -374,7 +407,7 @@ func (p *Parser) parseSlice() error {
 
 	// finally add values to target container in designated order
 	for i := 0; i < len(convertedVals); i++ {
-		reflect.Append(p.val, convertedVals[i].Elem())
+		p.val = reflect.Append(p.val, convertedVals[i].Elem())
 	}
 	return nil
 }

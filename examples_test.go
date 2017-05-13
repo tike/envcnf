@@ -145,10 +145,10 @@ func TestExample(t *testing.T) {
 	var config MyCnf
 	config.Listen = make(map[string]NetCnf)
 	config.MyFoo.Values = make([]uint64, 0)
-	t.Logf("before parse: %#v\n", config)
+	t.Logf("before parse:\n%#v\n", config)
 
 	if err := Parse(&config, "ACME-COORP", "_"); err != nil {
-		t.Fatalf("Parse: %v\n%v\n", config, err)
+		t.Fatalf("Parse error: %v\n%#v\n", err, config)
 	}
 	if !reflect.DeepEqual(config, expect) {
 		t.Fatalf("Unexpected Values parsed:\nHAVE:%#v\nWANT:%#v\n", config, expect)
