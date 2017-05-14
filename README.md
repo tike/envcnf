@@ -64,20 +64,20 @@ Your configuration file might then look like this:
 # or `source` it into your shell and run your exe manually
 
 # config values...
-export ACME-COORP_Environment=production
+export ACME-CORP_Environment=production
 
-export ACME-COORP_Listen_internal_Addr=127.0.0.1:80
-export ACME-COORP_Listen_internal_HTTPS=false
+export ACME-CORP_Listen_internal_Addr=127.0.0.1:80
+export ACME-CORP_Listen_internal_HTTPS=false
 
-export ACME-COORP_Listen_public_Addr=1.2.3.4:443
-export ACME-COORP_Listen_public_HTTPS=true
+export ACME-CORP_Listen_public_Addr=1.2.3.4:443
+export ACME-CORP_Listen_public_HTTPS=true
 
-export ACME-COORP_ChRoot=/var/empty
+export ACME-CORP_ChRoot=/var/empty
 
-export ACME-COORP_MyFoo_Values_0=3
-export ACME-COORP_MyFoo_Values_1=2
-export ACME-COORP_MyFoo_Values_2=1
-export ACME-COORP_MyFoo_Values_3=0
+export ACME-CORP_MyFoo_Values_0=3
+export ACME-CORP_MyFoo_Values_1=2
+export ACME-CORP_MyFoo_Values_2=1
+export ACME-CORP_MyFoo_Values_3=0
 
 # to make this a run script, rather than a mere config, just add this one line
 # /path/to/myapp
@@ -96,7 +96,7 @@ import (
 func main(){
   
   var cnf config.MyCnf
-  if err := envcnf.Parse(&cnf, "ACME-COORP", "_"); err != nil {
+  if err := envcnf.Parse(&cnf, "ACME-CORP", "_"); err != nil {
     fmt.Println("parsing config:", err)
     return
   }

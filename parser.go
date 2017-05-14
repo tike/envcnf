@@ -92,7 +92,7 @@ func (p *Parser) parseString() error {
 	key := p.getfullname()
 	rawval, ok := p.env[key]
 	if !ok {
-		//TODO: use/obtain/signal default falue
+		//TODO: use/obtain/signal default value
 		return MissingEnvVar(key)
 	}
 
@@ -114,7 +114,7 @@ func (p *Parser) parseBool() error {
 	key := p.getfullname()
 	rawval, ok := p.env[key]
 	if !ok {
-		//TODO: use/obtain/signal default falue
+		//TODO: use/obtain/signal default value
 		return MissingEnvVar(key)
 	}
 	val, err := strconv.ParseBool(rawval)
@@ -135,7 +135,7 @@ func (p *Parser) parseInt() error {
 	key := p.getfullname()
 	rawval, ok := p.env[key]
 	if !ok {
-		//TODO: use/obtain/signal default falue
+		//TODO: use/obtain/signal default value
 		return MissingEnvVar(key)
 	}
 
@@ -158,7 +158,7 @@ func (p *Parser) parseUint() error {
 	key := p.getfullname()
 	rawval, ok := p.env[key]
 	if !ok {
-		//TODO: use/obtain/signal default falue
+		//TODO: use/obtain/signal default value
 		return MissingEnvVar(key)
 	}
 
@@ -181,7 +181,7 @@ func (p *Parser) parseFloat() error {
 	key := p.getfullname()
 	rawval, ok := p.env[key]
 	if !ok {
-		//TODO: use/obtain/signal default falue
+		//TODO: use/obtain/signal default value
 		return MissingEnvVar(key)
 	}
 
