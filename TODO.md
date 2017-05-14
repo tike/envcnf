@@ -1,5 +1,5 @@
 - [x] Export a Parse method on the parser
-- [ ] Expand env vars in string types
+- [x] Expand env vars in string types
 - [x] allocate/make nil maps and slices
 - [ ] pointer handling
 - [ ] Add functionality to map env var casing (lower/upper/title/func)

@@ -1,6 +1,7 @@
 package envcnf
 
 import (
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -84,9 +85,9 @@ func (p Parser) getfullname() string {
 
 // parseString obtains the value from the env var that is signified by the fully
 // nested (and possibly prefixed) name of the parser,
-// parses it via strconv.ParseBool and assigns
-// the obtained result to the (proper subfield of the) variable you handed to
-// NewParser or NewParserWithName.
+// parses it via strconv.ParseString, expands any contained evironment variables
+// and assigns the obtained result to the (proper subfield of the) variable you
+// handed to NewParser or NewParserWithName.
 func (p *Parser) parseString() error {
 	key := p.getfullname()
 	rawval, ok := p.env[key]
@@ -94,6 +95,10 @@ func (p *Parser) parseString() error {
 		//TODO: use/obtain/signal default falue
 		return MissingEnvVar(key)
 	}
+
+	// this should almost never be necessary,
+	// but it's nice to have.
+	rawval = os.ExpandEnv(rawval)
 
 	// CanAddr/CanSet/AssignableTo/ConvertibleTo are handled by the upper layers
 	p.val.SetString(rawval)
