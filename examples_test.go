@@ -46,7 +46,6 @@ func ExampleParse() {
 	var config MyCnf
 
 	// making these two calls unneccessary is on the TODO list ;-)
-	config.Listen = make(map[string]NetCnf)
 	config.MyFoo.Values = make([]uint64, 0)
 
 	if err := Parse(&config, "ACME-COORP", "_"); err != nil {
@@ -145,7 +144,6 @@ func TestExample(t *testing.T) {
 	}
 
 	var config MyCnf
-	config.Listen = make(map[string]NetCnf)
 	config.MyFoo.Values = make([]uint64, 0)
 
 	if err := Parse(&config, "ACME-COORP", "_"); err != nil {

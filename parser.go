@@ -284,6 +284,10 @@ func (p *Parser) parseMap() error {
 		return MissingEnvVar(prfx + "_XYZ for map value")
 	}
 
+	if p.val.IsNil() {
+		p.val.Set(reflect.MakeMap(p.valT))
+	}
+
 	keyT := p.valT.Key()
 	keyIsString := keyT.Kind() == reflect.String
 
