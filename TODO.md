@@ -1,4 +1,4 @@
-- [ ] Export a Parse method on the parser
+- [x] Export a Parse method on the parser
 - [ ] Expand env vars in string types
 - [ ] allocate/make nil maps and slices
 - [ ] pointer handling

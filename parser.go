@@ -67,6 +67,11 @@ func newParserWithEnv(env rawEnv, val interface{}, prefix, sepchar, name string)
 	}, nil
 }
 
+// Parse starts the parsing process, returning any errors encountered.
+func (p *Parser) Parse() error {
+	return p.parseTypes()
+}
+
 // getfullname concatenates the parts of the parser's (parent) name(s) in a
 // sensible way.
 func (p Parser) getfullname() string {

@@ -1,6 +1,9 @@
 package envcnf
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 func Test_Parser_NewParser_Valid(t *testing.T) {
 	var b bool
@@ -27,6 +30,20 @@ func Test_Parser_NewParserWithName(t *testing.T) {
 		t.Fatalf("NewParser: %s", err)
 	}
 	t.Log("Parser:", p)
+}
+
+func Test_Parser_Parse(t *testing.T) {
+	os.Setenv("ACME_INT", "123")
+	defer os.Unsetenv("ACME_INT")
+
+	var v int
+	p, err := NewParserWithName(&v, "ACME", "_", "INT")
+	if err != nil {
+		t.Fatalf("NewParser: %s", err)
+	}
+	if err := p.Parse(); err != nil {
+		t.Fatalf("Parser.Parse(): %v", err)
+	}
 }
 
 func Test_Parser_getfullname(t *testing.T) {
