@@ -94,12 +94,8 @@ import (
 )
 
 func main(){
+  
   var cnf config.MyCnf
-
-  // making these two calls unneccessary is on the TODO list ;-)
-  config.Listen = make(map[string]NetCnf)
-  config.MyFoo.Values = make([]uint64, 0)
-
   if err := envcnf.Parse(&cnf, "ACME-COORP", "_"); err != nil {
     fmt.Println("parsing config:", err)
     return

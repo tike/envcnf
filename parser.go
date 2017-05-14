@@ -361,6 +361,10 @@ func (p *Parser) parseSlice() error {
 		return MissingEnvVar(prfx + "_XYZ for slice/array value")
 	}
 
+	if p.val.IsNil() {
+		p.val.Set(reflect.MakeSlice(p.valT, 0, len(env)))
+	}
+
 	valT := p.valT.Elem()
 	var valIsString, valIsContainer bool
 	switch valT.Kind() {

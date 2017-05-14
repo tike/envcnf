@@ -44,10 +44,6 @@ func ExampleParse() {
 
 	// and this is how you'd parse this
 	var config MyCnf
-
-	// making these two calls unneccessary is on the TODO list ;-)
-	config.MyFoo.Values = make([]uint64, 0)
-
 	if err := Parse(&config, "ACME-COORP", "_"); err != nil {
 		// Handle error
 	}
@@ -144,8 +140,6 @@ func TestExample(t *testing.T) {
 	}
 
 	var config MyCnf
-	config.MyFoo.Values = make([]uint64, 0)
-
 	if err := Parse(&config, "ACME-COORP", "_"); err != nil {
 		t.Fatalf("Parse error: %v\n%#v\n", err, config)
 	}
