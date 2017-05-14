@@ -9,32 +9,23 @@ import (
 
 // Here's how you'd use the Parse function with a sample config.
 func ExampleParse() {
-	/* Here is how a sample config file could look like:
+	// you'd normally set those outside the program, of course.
+	os.Setenv("ACME-COORP_Environment", "production")
 
-		    # put this into your .envrc, if you're using direnv
-		    # or name it `run.sh` and add an invocation of your exe at the end
-		    # or `source` it manually in your shell and run exe from there
+	os.Setenv("ACME-COORP_Listen_internal_Addr", "127.0.0.1:80")
+	os.Setenv("ACME-COORP_Listen_internal_HTTPS", "false")
 
-		    # config values...
-	      export ACME-COORP_Environment=production
+	os.Setenv("ACME-COORP_Listen_public_Addr", "1.2.3.4:443")
+	os.Setenv("ACME-COORP_Listen_public_HTTPS", "true")
 
-				export ACME-COORP_Listen_internal_Addr=127.0.0.1:80
-				export ACME-COORP_Listen_internal_HTTPS=false # or any of: FALSE, False, 1, f, F
+	os.Setenv("ACME-COORP_ChRoot", "/var/empty")
 
-				export ACME-COORP_Listen_public_Addr=1.2.3.4:443
-				export ACME-COORP_Listen_public_HTTPS=true # or any of: TRUE, True, 1, t, T
+	os.Setenv("ACME-COORP_MyFoo_Values_0", "3")
+	os.Setenv("ACME-COORP_MyFoo_Values_1", "2")
+	os.Setenv("ACME-COORP_MyFoo_Values_2", "1")
+	os.Setenv("ACME-COORP_MyFoo_Values_3", "0")
 
-			  export ACME-COORP_ChRoot=/var/empty
-
-			  export ACME-COORP_MyFoo_Values_0=3
-				export ACME-COORP_MyFoo_Values_1=2
-				export ACME-COORP_MyFoo_Values_2=1
-				export ACME-COORP_MyFoo_Values_3=0
-
-		    # ./acme_secretsauce
-	*/
-
-	// meanwhile in your source code...
+	// here are the sample configuration types we'll be parsing into
 	type NetCnf struct {
 		Addr  string
 		HTTPS bool
@@ -51,28 +42,39 @@ func ExampleParse() {
 		MyFoo       MySection
 	}
 
+	// and this is how you'd parse this
 	var config MyCnf
+
+	// making these two calls unneccessary is on the TODO list ;-)
+	config.Listen = make(map[string]NetCnf)
+	config.MyFoo.Values = make([]uint64, 0)
+
 	if err := Parse(&config, "ACME-COORP", "_"); err != nil {
 		// Handle error
 	}
-	fmt.Println(config)
-	/*
-			    MyCnf{
-			    Environment: "production",
-			    Listen: map{
-			    "internal": NetCnf{
-			      Addr: "127.0.0.1:80",
-			      HTTPS: false,
-			    }
-			    "external": NetCnf{
-			      Addr: "1.2.3.4:443",
-			      HTTPS: false,
-			    }
-		      ChRoot: "/var/empty",
-		      MyFoo: int{3, 2, 1, 0},
-			  }
+
+	fmt.Printf("%#v", config)
+	/* gives the following output:
+	   envcnf.MyCnf{
+	     Environment:"production",
+	     Listen:map[string]envcnf.NetCnf{
+	       "internal":envcnf.NetCnf{
+	         Addr:"127.0.0.1:80",
+	         HTTPS:false
+	       },
+	       "public":envcnf.NetCnf{
+	         Addr:"1.2.3.4:443",
+	         HTTPS:true
+	       }
+	     },
+	     ChRoot:"/var/empty",
+	     MyFoo:envcnf.MySection{
+	       Values:[]uint64{0x3, 0x2, 0x1, 0x0}
+	     }
+	   }
 	*/
-	// TADA !
+	// Output:
+	// envcnf.MyCnf{Environment:"production", Listen:map[string]envcnf.NetCnf{"public":envcnf.NetCnf{Addr:"1.2.3.4:443", HTTPS:true}, "internal":envcnf.NetCnf{Addr:"127.0.0.1:80", HTTPS:false}}, ChRoot:"/var/empty", MyFoo:envcnf.MySection{Values:[]uint64{0x3, 0x2, 0x1, 0x0}}}
 }
 
 func TestExample(t *testing.T) {
@@ -145,7 +147,6 @@ func TestExample(t *testing.T) {
 	var config MyCnf
 	config.Listen = make(map[string]NetCnf)
 	config.MyFoo.Values = make([]uint64, 0)
-	t.Logf("before parse:\n%#v\n", config)
 
 	if err := Parse(&config, "ACME-COORP", "_"); err != nil {
 		t.Fatalf("Parse error: %v\n%#v\n", err, config)
@@ -153,4 +154,5 @@ func TestExample(t *testing.T) {
 	if !reflect.DeepEqual(config, expect) {
 		t.Fatalf("Unexpected Values parsed:\nHAVE:%#v\nWANT:%#v\n", config, expect)
 	}
+	t.Logf("parsed:\n%#v\n", config)
 }
