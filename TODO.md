@@ -4,7 +4,7 @@
 - [ ] pointer handling
 - [ ] Add functionality to map env var casing (lower/upper/title/func)
 - [ ] struct tags for aliasing, omitempty et all
-- [ ] parsing complex numbers
 - [ ] interace for custom types
+- [ ] parsing complex numbers
 - [ ] make sepchar a package var?
 - [ ] boilerplate example to convert existing configurations
