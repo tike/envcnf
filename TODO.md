@@ -1,7 +1,7 @@
 - [x] Export a Parse method on the parser
 - [x] Expand env vars in string types
 - [x] allocate/make nil maps and slices
-- [ ] pointer handling
+- [x] pointer handling
 - [ ] Add functionality to map env var casing (lower/upper/title/func)
 - [ ] struct tags for aliasing, omitempty et all
 - [ ] interace for custom types

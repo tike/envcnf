@@ -1,6 +1,7 @@
 package envcnf
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 	"strconv"
@@ -204,6 +205,29 @@ func (p *Parser) parseFloat() error {
 	return nil
 }
 
+func (p *Parser) parsePointer() error {
+	if p.val.IsNil() {
+		if !p.val.CanSet() {
+			return FieldNotAddressable(p.name + " not settable")
+		}
+		p.val.Set(reflect.New(p.valT.Elem()))
+	}
+
+	subEnv := p.env.getAllWithPrefix(p.name + p.sepchar)
+	subparser, err := newParserWithEnv(subEnv, p.val.Interface(), p.prefix, p.sepchar, "")
+	if err != nil {
+		return err
+	}
+	if len(p.parentNames) > 0 {
+		subparser.parentNames = append(subparser.parentNames, p.parentNames...)
+	}
+	if p.val.Kind() == reflect.Struct {
+		subparser.parentNames = append(subparser.parentNames, p.name)
+	}
+
+	return subparser.parseTypes()
+}
+
 // parseTypes invokes the correct handler method for the reflect.Kind of the
 // value passed to NewParser or NewParserWithName.
 func (p *Parser) parseTypes() error {
@@ -233,7 +257,7 @@ func (p *Parser) parseTypes() error {
 	case reflect.String:
 		return p.parseString()
 	case reflect.Ptr:
-		return UnsupportedType("Ptr")
+		return p.parsePointer()
 	case reflect.Array, reflect.Slice:
 		return p.parseSlice()
 	case reflect.Map:
@@ -241,6 +265,7 @@ func (p *Parser) parseTypes() error {
 	case reflect.Struct:
 		return p.parseStruct()
 	default:
+		fmt.Println("unsupported:", p.valT, p.val.Interface())
 		return UnsupportedType(p.valT.Name() + " of kind " + p.valT.Kind().String())
 	}
 }

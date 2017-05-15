@@ -50,7 +50,7 @@ func ExampleParse() {
 	}
 
 	fmt.Println(config)
-	// Output:
+	// Output should look like:
 	// {production map[internal:{127.0.0.1:80 false} public:{1.2.3.4:443 true}] /var/empty {[3 2 1 0]}}
 }
 
@@ -105,7 +105,7 @@ func ExampleNewParserWithName() {
 	// production
 }
 
-func TestExample(t *testing.T) {
+func TestFooBar(t *testing.T) {
 	os.Setenv("ACME-CORP_Environment", "production")
 	defer os.Unsetenv("ACME-CORP_Environment")
 
@@ -149,7 +149,7 @@ func TestExample(t *testing.T) {
 		Environment string
 		Listen      map[string]NetCnf
 		ChRoot      string
-		MyFoo       MySection
+		MyFoo       *MySection
 	}
 
 	var expect = MyCnf{
@@ -165,7 +165,7 @@ func TestExample(t *testing.T) {
 			},
 		},
 		ChRoot: "/var/empty",
-		MyFoo: MySection{
+		MyFoo: &MySection{
 			Values: []uint64{
 				3, 2, 1, 0,
 			},
@@ -176,8 +176,22 @@ func TestExample(t *testing.T) {
 	if err := Parse(&config, "ACME-CORP", "_"); err != nil {
 		t.Fatalf("Parse error: %v\n%#v\n", err, config)
 	}
-	if !reflect.DeepEqual(config, expect) {
-		t.Fatalf("Unexpected Values parsed:\nHAVE:%#v\nWANT:%#v\n", config, expect)
+
+	if config.Environment != expect.Environment {
+		t.Fatalf("Unexpected Values parsed:\nHAVE:%#v\nWANT:%#v\n", config.Environment, expect.Environment)
 	}
+	if config.ChRoot != expect.ChRoot {
+		t.Fatalf("Unexpected Values parsed:\nHAVE:%#v\nWANT:%#v\n", config.ChRoot, expect.ChRoot)
+	}
+	if !reflect.DeepEqual(config.Listen["internal"], expect.Listen["internal"]) {
+		t.Fatalf("Unexpected Values parsed:\nHAVE:%#v\nWANT:%#v\n", config.Listen["internal"], expect.Listen["internal"])
+	}
+	if !reflect.DeepEqual(config.Listen["public"], expect.Listen["public"]) {
+		t.Fatalf("Unexpected Values parsed:\nHAVE:%#v\nWANT:%#v\n", config.Listen["public"], expect.Listen["public"])
+	}
+	if !reflect.DeepEqual(*config.MyFoo, *expect.MyFoo) {
+		t.Fatalf("Unexpected Values parsed:\nHAVE:%#v\nWANT:%#v\n", *config.MyFoo, *expect.MyFoo)
+	}
+
 	t.Logf("parsed:\n%#v\n", config)
 }
