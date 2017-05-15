@@ -8,6 +8,16 @@ import (
 	"strings"
 )
 
+// These values are used to indicate wether to do case conversion when looking up
+// environment variable names. So if a struct field is named 'Field'
+// and you pass 'ToUpper' the parser will look for an environment variable
+// named 'FIELD'.
+const (
+	NoConv int = iota
+	ToLower
+	ToUpper
+)
+
 // Parser handles a single parsing process for a given (composite) value,
 // thous allowing low overhead recursion to account for parsing of composite
 // types.
@@ -17,6 +27,7 @@ type Parser struct {
 	val  reflect.Value
 	valT reflect.Type
 
+	conv    int
 	prefix  string
 	sepchar string
 
@@ -90,7 +101,20 @@ func (p Parser) getfullname() string {
 	if len(p.parentNames) > 0 {
 		key = strings.Join(p.parentNames, p.sepchar) + p.sepchar
 	}
-	return key + p.name
+	key += p.name
+
+	return p.convertCase(key)
+}
+
+func (p Parser) convertCase(key string) string {
+	switch p.conv {
+	case ToUpper:
+		return strings.ToUpper(key)
+	case ToLower:
+		return strings.ToLower(key)
+	default:
+		return key
+	}
 }
 
 // parseString obtains the value from the env var that is signified by the fully
