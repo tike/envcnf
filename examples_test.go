@@ -45,31 +45,64 @@ func ExampleParse() {
 	// and this is how you'd parse this
 	var config MyCnf
 	if err := Parse(&config, "ACME-CORP", "_"); err != nil {
-		// Handle error
+		fmt.Println("Parse:", err)
+		return
 	}
 
-	fmt.Printf("%#v", config)
-	/* gives the following output:
-	   envcnf.MyCnf{
-	     Environment:"production",
-	     Listen:map[string]envcnf.NetCnf{
-	       "internal":envcnf.NetCnf{
-	         Addr:"127.0.0.1:80",
-	         HTTPS:false
-	       },
-	       "public":envcnf.NetCnf{
-	         Addr:"1.2.3.4:443",
-	         HTTPS:true
-	       }
-	     },
-	     ChRoot:"/var/empty",
-	     MyFoo:envcnf.MySection{
-	       Values:[]uint64{0x3, 0x2, 0x1, 0x0}
-	     }
-	   }
-	*/
+	fmt.Println(config)
 	// Output:
-	// envcnf.MyCnf{Environment:"production", Listen:map[string]envcnf.NetCnf{"public":envcnf.NetCnf{Addr:"1.2.3.4:443", HTTPS:true}, "internal":envcnf.NetCnf{Addr:"127.0.0.1:80", HTTPS:false}}, ChRoot:"/var/empty", MyFoo:envcnf.MySection{Values:[]uint64{0x3, 0x2, 0x1, 0x0}}}
+	// {production map[internal:{127.0.0.1:80 false} public:{1.2.3.4:443 true}] /var/empty {[3 2 1 0]}}
+}
+
+func ExampleNewParser() {
+	// you'd normally set those outside the program, of course.
+	os.Setenv("ACME-CORP_Host", "localhost")
+	os.Setenv("ACME-CORP_Port", "8000")
+	os.Setenv("ACME-CORP_HTTPS", "false")
+
+	type Addr struct {
+		Host  string
+		Port  int
+		HTTPS bool
+	}
+
+	var cnf Addr
+	p, err := NewParser(&cnf, "ACME-CORP", "_")
+	if err != nil {
+		fmt.Println("NewParser:", err)
+		return
+	}
+
+	if err := p.Parse(); err != nil {
+		fmt.Println("Parse:", err)
+		return
+	}
+
+	fmt.Println(cnf)
+	// Output:
+	// {localhost 8000 false}
+}
+
+func ExampleNewParserWithName() {
+	// you'd normally set those outside the program, of course.
+	os.Setenv("ACME-CORP_environment", "production")
+
+	var env string
+	p, err := NewParserWithName(&env, "ACME-CORP", "_", "environment")
+	if err != nil {
+		fmt.Println("NewParserWithName:", err)
+		return
+	}
+
+	if err := p.Parse(); err != nil {
+		fmt.Println("Parse:", err)
+		return
+	}
+
+	fmt.Println(env)
+
+	// Output:
+	// production
 }
 
 func TestExample(t *testing.T) {

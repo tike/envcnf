@@ -36,14 +36,23 @@ func Parse(val interface{}, prefix, sepchar string) error {
 	return p.parseTypes()
 }
 
-// NewParser is the default interface to be used for parsing composite types.
+// NewParser can be used parse multiple values into a composite types, like
+// structs, maps or slices. Just pass a pointer to the variable
+// you'd like to receive your config values in. If you use a common prefix to
+// set your config variable names apart and avoid cluttering, pass it via the
+// prefix parameter. sepchar is used to separate the prefix and the subfields
+// of your env var. See the examples.
 func NewParser(val interface{}, prefix, sepchar string) (*Parser, error) {
 	env := newRawEnvWithPrfxSep(prefix, sepchar)
 	return newParserWithEnv(env, val, prefix, sepchar, "")
 }
 
-// NewParserWithName is the default interface to be used for parsing a single
-// non-composite value.
+// NewParserWithName can be used to parse a single non-composite value from an
+// environment variable. Just pass a pointer to the variable
+// you'd like to receive your config value in. If you use a common prefix to
+// set your config variable names apart and avoid cluttering, pass it via the
+// prefix parameter. sepchar is used to separate the prefix and the subfields
+// of your env var. See the examples.
 func NewParserWithName(val interface{}, prefix, sepchar, name string) (*Parser, error) {
 	env := newRawEnvWithPrfxSep(prefix, sepchar)
 	return newParserWithEnv(env, val, prefix, sepchar, name)

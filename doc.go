@@ -15,13 +15,13 @@
 //
 // How:
 //
-// 1. Use direnv (https://github.com/direnv/direnv) to maintain and organise
-// your configuration in shell script like files or just source them by hand.
-//
-// 2. Name your env vars to match your config type's field names. You can of
+// 1. Name your env vars to match your config type's field names. You can of
 // course use a common prefix to set them apart from "regular" env vars and
 // thous even have different configuration sets loaded at the same time,
 // designating each set by a different prefix.
+//
+// 2. Use direnv (https://github.com/direnv/direnv) to maintain and organise
+// your configuration in shell script like files or just source them by hand.
 //
 // 3. Parse the configuration from the environment variables into your config
 // struct, map, slice or any (however deeply nested and complex) combination
