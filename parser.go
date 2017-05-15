@@ -320,7 +320,7 @@ func (p *Parser) parseMap() error {
 	env := p.env.getAllWithPrefix(prfx + p.sepchar)
 
 	if len(env) == 0 {
-		return MissingEnvVar(prfx + "_XYZ for map value")
+		return MissingEnvVar(prfx + p.sepchar + "KEY for map value")
 	}
 
 	if p.val.IsNil() {
@@ -397,7 +397,7 @@ func (p *Parser) parseSlice() error {
 	env := p.env.getAllWithPrefix(prfx + p.sepchar)
 
 	if len(env) == 0 {
-		return MissingEnvVar(prfx + "_XYZ for slice/array value")
+		return MissingEnvVar(prfx + p.sepchar + "N for slice/array value")
 	}
 
 	if p.val.IsNil() {
