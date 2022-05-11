@@ -14,7 +14,7 @@ var ErrNeedPointerValue = errors.New("envcnf: val needs to be a pointer")
 type MissingEnvVar string
 
 func (e MissingEnvVar) Error() string {
-	return fmt.Sprintf("envcnf: missing env var %q", e)
+	return fmt.Sprintf("envcnf: missing env var %q", string(e))
 }
 
 // FieldNotAddressable is returned when a structfield is not addressable.
@@ -22,12 +22,12 @@ func (e MissingEnvVar) Error() string {
 type FieldNotAddressable string
 
 func (e FieldNotAddressable) Error() string {
-	return fmt.Sprintf("envcnf: struct field %q not addressable", e)
+	return fmt.Sprintf("envcnf: struct field %q not addressable", string(e))
 }
 
 // UnsupportedType is returned when a type is not supported.
 type UnsupportedType string
 
 func (e UnsupportedType) Error() string {
-	return fmt.Sprintf("envcnf: unsupported type %q", e)
+	return fmt.Sprintf("envcnf: unsupported type %q", string(e))
 }
